@@ -1,7 +1,7 @@
 #include "queue.h"
 #include <iostream>
 #include <string>
-#include <algorithm>
+#include <cctype>
 
 using namespace std;
 
@@ -11,7 +11,7 @@ int main() {
     cout << "Введите количество окон: ";
     cin >> windowCount;
     
-    ElectronicQueue eq(windowCount);
+    windows.resize(windowCount);
     
     string command;
     
@@ -24,7 +24,6 @@ int main() {
         cout << ">>> ";
         cin >> command;
         
-        // Переводим в верхний регистр
         for (char& c : command) {
             c = toupper(c);
         }
@@ -36,12 +35,12 @@ int main() {
             if (duration <= 0) {
                 cout << "Ошибка: время должно быть положительным\n";
             } else {
-                eq.enqueue(duration);
+                enqueue(duration);
             }
         }
         else if (command == "DISTRIBUTE") {
-            eq.distribute();
-            eq.printResult();
+            distribute();
+            printResult();
         }
         else if (command == "EXIT") {
             cout << "До свидания!\n";

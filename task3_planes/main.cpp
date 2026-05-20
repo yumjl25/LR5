@@ -7,8 +7,8 @@
 using namespace std;
 
 int main() {
-    PlaneSystem system; // создаём объект системы
-    string line; // сюда будем читать целую строку
+    PlaneSystem system; 
+    string line; 
     
     cout << "Система управления маршрутами самолётов\n";
     cout << "Команды:\n";
@@ -24,9 +24,9 @@ int main() {
         
         if (line.empty()) continue;
         
-        stringstream ss(line); // превращаем строку в поток
+        stringstream ss(line);
         string command;
-        ss >> command; // читаем первое слово — это команда
+        ss >> command; 
 
         for (char& c : command) {
             c = toupper(c);

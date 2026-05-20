@@ -7,28 +7,20 @@
 
 using namespace std;
 
-// Структура месяца
 struct Month {
     string name;
     int days;
 };
 
-// Класс расписания
-class Schedule {
-private:
-    vector<Month> months;
-    int currentMonth;                          // индекс текущего месяца
-    map<int, vector<string>> schedule;         // день -> дисциплины
-    
-    int getDaysInMonth(int monthIndex) const;
-    string getMonthName(int monthIndex) const;
-    
-public:
-    Schedule(); //Вызывается при создании объекта. Инициализирует месяцы и устанавливает currentMonth = 0 (январь).
-    
-    void addClass(int day, const string& discipline);
-    void nextMonth();
-    void viewDay(int day) const;
-};
+extern vector<Month> months;
+extern int currentMonth;
+extern map<int, vector<string>> schedule;
+
+// Объявления функций
+int getDaysInMonth(int monthIndex);
+string getMonthName(int monthIndex);
+void addClass(int day, const string& discipline);
+void nextMonth();
+void viewDay(int day);
 
 #endif

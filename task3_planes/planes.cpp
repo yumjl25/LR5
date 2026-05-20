@@ -5,20 +5,18 @@
 
 using namespace std;
 
-// Проверка существования самолёта
 bool PlaneSystem::planeExists(const string& name) const {
-    return planes.find(name) != planes.end(); //Ищем самолёт с именем name в map
+    return planes.find(name) != planes.end(); 
 }
 
-// Получить список самолётов для города
 vector<string> PlaneSystem::getPlanesForTown(const string& town) const {
     vector<string> result;
     
-    for (const auto& [planeName, route] : planes) { //Перебираем все самолёты (ключ=имя, значение=маршрут)
-        for (const string& city : route) { //Перебираем все города в маршруте
+    for (const auto& [planeName, route] : planes) { 
+        for (const string& city : route) { 
             if (city == town) {
                 result.push_back(planeName);
-                break; //Прерываем внутренний цикл (чтобы не добавить тот же самолёт дважды)
+                break; 
             }
         }
     }
@@ -26,21 +24,17 @@ vector<string> PlaneSystem::getPlanesForTown(const string& town) const {
     return result;
 }
 
-// CREATE_PLANE
 void PlaneSystem::createPlane(const string& name, const vector<string>& towns) {
-    // Проверка: существует ли уже
     if (planeExists(name)) {
         cout << "Ошибка: Самолёт " << name << " уже создан\n";
         return;
     }
     
-    // Проверка: минимум 2 города
     if (towns.size() < 2) {
         cout << "Ошибка: Самолёт не может быть создан с одним городом\n";
         return;
     }
     
-    // Проверка: повторяющиеся города
     for (size_t i = 0; i + 1 < towns.size(); ++i) {
         if (towns[i] == towns[i + 1]) {
             cout << "Ошибка: Самолёт не может быть создан с двумя одинаковыми городами подряд\n";
@@ -48,14 +42,12 @@ void PlaneSystem::createPlane(const string& name, const vector<string>& towns) {
         }
     }
     
-    // Все проверки пройдены - создаём
-    planes[name] = towns; //Добавляем в map
+    planes[name] = towns; 
     cout << "Самолёт " << name << " создан\n";
 }
 
-// PLANES_FOR_TOWN
 void PlaneSystem::planesForTown(const string& town) const {
-    vector<string> result = getPlanesForTown(town); //Получаем список самолётов для города
+    vector<string> result = getPlanesForTown(town); 
     
     if (result.empty()) {
         cout << "Ошибка: Город " << town << " не найден\n";
@@ -69,11 +61,9 @@ void PlaneSystem::planesForTown(const string& town) const {
     }
 }
 
-// TOWNS_FOR_PLANE
 void PlaneSystem::townsForPlane(const string& name) const {
     auto it = planes.find(name);
     
-    // Проверка: существует ли самолёт
     if (it == planes.end()) {
         cout << "Ошибка: Самолёт " << name << " не найден\n";
         return;
@@ -81,7 +71,6 @@ void PlaneSystem::townsForPlane(const string& name) const {
     
     const vector<string>& route = it->second;
     
-    // Вывод городов самолёта
     cout << "Города самолёта " << name << ": ";
     for (size_t i = 0; i < route.size(); ++i) {
         if (i > 0) cout << " ";
@@ -89,15 +78,14 @@ void PlaneSystem::townsForPlane(const string& name) const {
     }
     cout << "\n\n";
     
-    // Для каждого города выводим другие самолёты
     for (const string& city : route) {
         cout << "Город " << city << ": ";
         
         vector<string> otherPlanes;
         for (const auto& [otherName, otherRoute] : planes) {
-            if (otherName == name) continue;  // otherName == name - пропускаем
+            if (otherName == name) continue; 
             
-            for (const string& otherCity : otherRoute) { //Проверяем, есть ли этот город в маршруте другого самолёта
+            for (const string& otherCity : otherRoute) { 
                 if (otherCity == city) { 
                     otherPlanes.push_back(otherName);
                     break;
@@ -117,7 +105,6 @@ void PlaneSystem::townsForPlane(const string& name) const {
     }
 }
 
-// PLANES - вывод всех самолётов
 void PlaneSystem::printAllPlanes() const {
     if (planes.empty()) {
         cout << "Ошибка: Самолёты не найдены\n";
@@ -127,7 +114,6 @@ void PlaneSystem::printAllPlanes() const {
     for (const auto& [name, route] : planes) {
         cout << "Самолёт " << name << ": ";
         
-        // для вывода городов
         bool first = true;
         for (const string& city : route) {
             if (!first) cout << " ";
@@ -138,7 +124,6 @@ void PlaneSystem::printAllPlanes() const {
     }
 }
 
-// Определение команды по строке
 Type PlaneSystem::getCommandType(const string& cmd) { //Преобразует строку  в значение перечисления Type
     if (cmd == "CREATE_PLANE") return Type::CREATE_PLANE;
     if (cmd == "PLANES_FOR_TOWN") return Type::PLANES_FOR_TOWN;

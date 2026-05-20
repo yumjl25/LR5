@@ -1,18 +1,16 @@
 #include "queue.h"
 #include <iostream>
-#include <iomanip>
 #include <climits>
+#include <algorithm>
 
 using namespace std;
 
-// Конструктор
-ElectronicQueue::ElectronicQueue(int windowCount) { //Конструктор класса (вызывается при создании объекта)
-    windows.resize(windowCount); //Изменяем размер вектора windows на windowCount
-    nextTicketNum = 1;
-}
+// Глобальные переменные (определение)
+vector<Visitor> waitingQueue;
+vector<Window> windows;
+int nextTicketNum = 1;
 
-// Генерация номера талона (T001, T002...)
-string ElectronicQueue::generateTicketNumber() {
+string generateTicketNumber() {
     string ticket = "T";
     
     if (nextTicketNum < 10) {
@@ -21,64 +19,75 @@ string ElectronicQueue::generateTicketNumber() {
         ticket += "0";
     }
     
-    ticket += to_string(nextTicketNum); //Добавляем число в конец строки
+    ticket += to_string(nextTicketNum);
     nextTicketNum++;
     
     return ticket;
 }
 
-// Добавление посетителя в очередь
-void ElectronicQueue::enqueue(int duration) {
-    string ticket = generateTicketNumber(); //Генерируем новый номер талона
-    waitingQueue.push_back({ticket, duration}); //Добавляем посетителя в конец очереди. {ticket, duration} создаёт структуру Visitor на месте
+void enqueue(int duration) {
+    string ticket = generateTicketNumber();
+    waitingQueue.push_back({ticket, duration});
     cout << "Выдан талон " << ticket << "\n";
 }
 
-// Распределение посетителей по окнам
-void ElectronicQueue::distribute() {
+void distribute() {
     if (windows.empty()) {
         cout << "Ошибка: нет окон для распределения\n";
         return;
     }
     
-    // Для каждого посетителя в очереди
-    for (const Visitor& visitor : waitingQueue) { //перебираем всех посетителей в очереди.
-        // Ищем окно с минимальной загрузкой
-        int minTime = INT_MAX;
-        int bestWindow = 0;
-        
-        for (size_t i = 0; i < windows.size(); i++) { //Перебираем все окна
-            if (windows[i].totalTime < minTime) {
-                minTime = windows[i].totalTime;
-                bestWindow = i;
-            }
-        }
-        
-        // Назначаем посетителя в лучшее окно
-        windows[bestWindow].totalTime += visitor.duration; //Увеличиваем общее время окна на длительность визита
-        windows[bestWindow].tickets.push_back(visitor.ticket + "(" + to_string(visitor.duration) + ")"); //Добавляем талон в список окна.
+    // Сортируем посетителей по времени (по убыванию)
+    vector<Visitor> sortedQueue = waitingQueue;
+    sort(sortedQueue.begin(), sortedQueue.end(), 
+         [](const Visitor& a, const Visitor& b) {
+             return a.duration > b.duration;
+         });
+    
+    // Вектор для хранения пар (время, индекс окна)
+    vector<pair<int, int>> windowLoad;
+    for (size_t i = 0; i < windows.size(); ++i) {
+        windowLoad.push_back({0, i});
     }
     
-    // Очищаем очередь
+    // Распределяем посетителей
+    for (const Visitor& visitor : sortedQueue) {
+        sort(windowLoad.begin(), windowLoad.end());
+        int bestWindow = windowLoad[0].second;
+        
+        windows[bestWindow].totalTime += visitor.duration;
+        windows[bestWindow].tickets.push_back(visitor.ticket + "(" + to_string(visitor.duration) + ")");
+        windowLoad[0].first += visitor.duration;
+    }
+    
+    // Сортируем талоны в каждом окне по номеру
+    for (size_t i = 0; i < windows.size(); ++i) {
+        sort(windows[i].tickets.begin(), windows[i].tickets.end(),
+             [](const string& a, const string& b) {
+                 int numA = stoi(a.substr(1, a.find('(') - 1));
+                 int numB = stoi(b.substr(1, b.find('(') - 1));
+                 return numA < numB;
+             });
+    }
+    
     waitingQueue.clear();
 }
 
-// Вывод результата
-void ElectronicQueue::printResult() const {
+void printResult() {
     if (waitingQueue.size() > 0) {
         cout << "Сначала выполните DISTRIBUTE\n";
         return;
     }
     
     cout << "\nРезультат распределения:\n";
-    for (size_t i = 0; i < windows.size(); i++) {
+    for (size_t i = 0; i < windows.size(); ++i) {
         cout << "Окно " << (i + 1) << ": общее время " << windows[i].totalTime << " мин, талоны: ";
         
-        if (windows[i].tickets.empty()) { //Если список талонов пуст
+        if (windows[i].tickets.empty()) {
             cout << "(нет посетителей)";
         } else {
-            for (size_t j = 0; j < windows[i].tickets.size(); j++) {
-                if (j > 0) cout << ", "; //Перед каждым талоном, кроме первого, ставим запятую
+            for (size_t j = 0; j < windows[i].tickets.size(); ++j) {
+                if (j > 0) cout << ", ";
                 cout << windows[i].tickets[j];
             }
         }

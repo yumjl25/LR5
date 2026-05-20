@@ -2,33 +2,46 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <cctype>   // для toupper
+#include <cctype>
 
 using namespace std;
 
 int main() {
-    Schedule schedule; // создаём объект расписания
+    months = {
+        {"Январь", 31},
+        {"Февраль", 28},
+        {"Март", 31},
+        {"Апрель", 30},
+        {"Май", 31},
+        {"Июнь", 30},
+        {"Июль", 31},
+        {"Август", 31},
+        {"Сентябрь", 30},
+        {"Октябрь", 31},
+        {"Ноябрь", 30},
+        {"Декабрь", 31}
+    };
+    
     int n;
     
     cout << "Введите количество запросов (N):\n>>> ";
     cin >> n;
-    cin.ignore();  // очищаем буфер после cin, сли его не убрать, следующий getline прочитает пустую строку
+    cin.ignore();
     
     for (int i = 0; i < n; ++i) {
         string line;
         cout << ">>> ";
-        getline(cin, line); //Читаем всю строку целиком
+        getline(cin, line);
         
         if (line.empty()) {
-            --i; //откатываем счётчик, чтобы этот запрос не засчитался
+            --i;
             continue;
         }
         
-        stringstream ss(line); // превращаем строку в поток
+        stringstream ss(line);
         string command;
-        ss >> command;  // читаем первое слово — это команда
+        ss >> command;
         
-        // Переводим команду в верхний регистр
         for (char& c : command) {
             c = toupper(c);
         }
@@ -36,16 +49,16 @@ int main() {
         if (command == "CLASS") {
             int day;
             string discipline;
-            ss >> day >> discipline; //Читаем из потока день и дисциплину
-            schedule.addClass(day, discipline);
+            ss >> day >> discipline;
+            addClass(day, discipline);
         }
         else if (command == "NEXT") {
-            schedule.nextMonth();
+            nextMonth();
         }
         else if (command == "VIEW") {
             int day;
-            ss >> day; //Читаем день из потока и вызываем метод
-            schedule.viewDay(day);
+            ss >> day;
+            viewDay(day);
         }
         else {
             cout << "Неизвестная команда: " << command << "\n";
